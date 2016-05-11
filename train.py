@@ -17,6 +17,7 @@ from CharRNN import CharRNN, make_initial_state
 def load_data(args):
     vocab = {}
     print ('%s/input.txt'% args.data_dir)
+    """
     words = codecs.open('%s/input.txt' % args.data_dir, 'rb', 'utf-8').read()
     words = list(words)
     dataset = np.ndarray((len(words),), dtype=np.int32)
@@ -26,6 +27,38 @@ def load_data(args):
         dataset[i] = vocab[word]
     print 'corpus length:', len(words)
     print 'vocab size:', len(vocab)
+    """
+    fin = open("%s/input.txt"%args.data_dir,"r")
+    line = fin.readline()
+    dataLength = 0
+
+    while line:
+        _words = line.split(" ")
+        dataLength += len(_words)
+        for i, word in enumerate(_words):
+            word = word.replace("\n","")
+            if word not in vocab:
+                vocab[word] = len(vocab)
+        line = fin.readline()
+    fin.close()
+    
+    dataset = np.ndarray((dataLength,), dtype=np.int32)
+    words = []
+
+    counter = 0
+
+    fin = open("%s/input.txt"%args.data_dir,"r")
+    line = fin.readline()
+    while line:
+        _words = line.split(" ")
+        words.extend(_words)
+        for i, word in enumerate(_words):
+            word = word.replace("\n","")
+            dataset[counter] = vocab[word]
+            counter += 1
+        line = fin.readline()
+    fin.close()
+
     return dataset, words, vocab
 
 # arguments

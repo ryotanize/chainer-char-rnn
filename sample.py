@@ -49,18 +49,23 @@ if args.gpu >= 0:
     for key, value in state.items():
         value.data = cuda.to_gpu(value.data)
 
-prev_char = np.array([0], dtype=np.int32)
+
 if args.gpu >= 0:
     prev_char = cuda.to_gpu(prev_char)
 
 if len(args.primetext) > 0:
-    for i in unicode(args.primetext, 'utf-8'):
-        sys.stdout.write(i)
-        prev_char = np.ones((1,), dtype=np.int32) * vocab[i]
+    #for i in unicode(args.primetext, 'utf-8'):
+    words = args.primetext.split(" ")
+    for word in words:
+        word = word.replace("\n","")
+        sys.stdout.write("input word : " + word + "\n")
+        prev_char = np.ones((1,), dtype=np.int32) * vocab[word]
         if args.gpu >= 0:
             prev_char = cuda.to_gpu(prev_char)
 
         state, prob = model.forward_one_step(prev_char, prev_char, state, train=False)
+
+sys.stdout.write("----- sampling result -----")
 
 for i in xrange(args.length):
     state, prob = model.forward_one_step(prev_char, prev_char, state, train=False)
@@ -71,7 +76,7 @@ for i in xrange(args.length):
         index = np.random.choice(range(len(probability)), p=probability)
     else:
         index = np.argmax(cuda.to_cpu(prob.data))
-    sys.stdout.write(ivocab[index])
+    sys.stdout.write(ivocab[index] + "\n")
 
     prev_char = np.array([index], dtype=np.int32)
     if args.gpu >= 0:

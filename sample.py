@@ -1,4 +1,4 @@
-#%%
+# -*- encoding:utf-8 -*-
 import time
 import math
 import sys
@@ -12,6 +12,35 @@ import chainer.functions as F
 from CharRNN import CharRNN, make_initial_state
 
 sys.stdout = codecs.getwriter('utf_8')(sys.stdout)
+
+def convertDegreeRepresentation(chord):
+    if chord.find("10") != -1 or chord.find("11") != -1:
+        degree = chord[:2]
+        chordType = chord[2:]
+    else:
+        degree = chord[0]
+        chordType = chord[1:]
+
+    degree = degree.replace("0","Ⅰ")
+    degree = degree.replace("1","Ⅰ #/Ⅱ ♭")
+    degree = degree.replace("2","Ⅱ")
+    degree = degree.replace("3","Ⅱ #/Ⅲ ♭")
+    degree = degree.replace("4","Ⅲ")
+    degree = degree.replace("5","Ⅳ")
+    degree = degree.replace("6","Ⅳ #/Ⅴ ♭")
+    degree = degree.replace("7","Ⅴ")
+    degree = degree.replace("8","Ⅴ #/Ⅵ ♭")
+    degree = degree.replace("9","Ⅵ")
+    degree = degree.replace("10","Ⅵ #/Ⅶ ♭")
+    degree = degree.replace("11","Ⅶ")
+
+    res = degree.decode("utf-8") + " ".decode("utf-8") + chordType.decode("utf-8")
+    return res
+
+
+
+
+
 
 #%% arguments
 parser = argparse.ArgumentParser()
@@ -65,7 +94,7 @@ if len(args.primetext) > 0:
 
         state, prob = model.forward_one_step(prev_char, prev_char, state, train=False)
 
-sys.stdout.write("----- sampling result -----")
+sys.stdout.write("----- sampling result -----\n")
 
 for i in xrange(args.length):
     state, prob = model.forward_one_step(prev_char, prev_char, state, train=False)
@@ -76,7 +105,8 @@ for i in xrange(args.length):
         index = np.random.choice(range(len(probability)), p=probability)
     else:
         index = np.argmax(cuda.to_cpu(prob.data))
-    sys.stdout.write(ivocab[index] + "\n")
+    #sys.stdout.write(convertDegreeRepresentation(ivocab[index]) + "\n")
+    print convertDegreeRepresentation(ivocab[index]) + "\n"
 
     prev_char = np.array([index], dtype=np.int32)
     if args.gpu >= 0:

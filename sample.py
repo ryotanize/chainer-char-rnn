@@ -87,7 +87,7 @@ if len(args.primetext) > 0:
     words = args.primetext.split(" ")
     for word in words:
         word = word.replace("\n","")
-        sys.stdout.write("input word : " + word + "\n")
+        sys.stdout.write("input word : " + convertDegreeRepresentation(word) + "\n")
         prev_char = np.ones((1,), dtype=np.int32) * vocab[word]
         if args.gpu >= 0:
             prev_char = cuda.to_gpu(prev_char)
